@@ -8,7 +8,7 @@ pygame.init()
 DRAW_LINES = True
 pygame.display.set_caption("Bouncy Ball")
 
-gen = 0
+gen = 465
 
 
 def jump_or_not(player, g_play, network):
@@ -42,7 +42,7 @@ def eval_genomes(genomes, config):
     global gen
     gen += 1
 
-    FPS = 15
+    FPS = 120
     game_play = GamePlay(FPS, gen, DRAW_LINES)
     fpsClock = game_play.get_fps_clock
 
@@ -105,22 +105,25 @@ def run(config_file):
     :param config_file: location of config file
     :return: None
     """
+    global gen
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_file)
 
+    print(config.__dict__)
+
     # Create the population, which is the top-level object for a NEAT run.
     # p = neat.Population(config)
-    p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-262')
+    p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-' + str(gen+1))
 
     # Add a stdout reporter to show progress in the terminal.
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(20))
+    p.add_reporter(neat.Checkpointer(10))
 
     # Run for up to 200 generations.
-    winner = p.run(eval_genomes, 2)
+    winner = p.run(eval_genomes, 1000)
 
     with open('winner.pkl', 'wb') as output:
         pickle.dump(winner, output, 1)
@@ -132,53 +135,53 @@ def run(config_file):
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config-feedforward.txt')
-    # run(config_path)
+    run(config_path)
 
-    config_file = config_path
-    config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                                neat.DefaultSpeciesSet, neat.DefaultStagnation,
-                                config_file)
-
-    FPS = 60
-    game_play = GamePlay(FPS, draw_line=DRAW_LINES)
-    fpsClock = game_play.get_fps_clock
-
-    with open('winner.pkl', 'rb') as input_file:
-        genome = pickle.load(input_file)
-
-    nets = []
-    players = []
-
-    game_play.prepare()
-
-    for i in range(1):
-        net = neat.nn.FeedForwardNetwork.create(genome, config)
-        nets.append(net)
-        new_ai = AI(game_play.screen, game_play.player_init_position, game_play.player_radius, game_play)
-        players.append(new_ai)
-        game_play.add_player(new_ai)
-
-    game_play.start()
-
-    while game_play.state != GameState.ALL_DEAD:
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            game_play.check_event(event)
-
-        for player in players:
-            network = nets[players.index(player)]
-            jump_or_not(player, game_play, network)
-
-        for player in players:
-            if player.state == PlayerState.DEAD:
-                nets.pop(players.index(player))
-                players.pop(players.index(player))
-
-        game_play.draw()
-        pygame.display.flip()
-        pygame.display.update()
-        fpsClock.tick(FPS)
-
-    print('Best Score: ', game_play.score)
+    # config_file = config_path
+    # config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+    #                             neat.DefaultSpeciesSet, neat.DefaultStagnation,
+    #                             config_file)
+    #
+    # FPS = 120
+    # game_play = GamePlay(FPS, draw_line=DRAW_LINES)
+    # fpsClock = game_play.get_fps_clock
+    #
+    # with open('winner.pkl', 'rb') as input_file:
+    #     genome = pickle.load(input_file)
+    #
+    # nets = []
+    # players = []
+    #
+    # game_play.prepare()
+    #
+    # for i in range(1):
+    #     net = neat.nn.FeedForwardNetwork.create(genome, config)
+    #     nets.append(net)
+    #     new_ai = AI(game_play.screen, game_play.player_init_position, game_play.player_radius, game_play)
+    #     players.append(new_ai)
+    #     game_play.add_player(new_ai)
+    #
+    # game_play.start()
+    #
+    # while game_play.state != GameState.ALL_DEAD:
+    #     for event in pygame.event.get():
+    #         if event.type == QUIT:
+    #             pygame.quit()
+    #             sys.exit()
+    #         game_play.check_event(event)
+    #
+    #     for player in players:
+    #         network = nets[players.index(player)]
+    #         jump_or_not(player, game_play, network)
+    #
+    #     for player in players:
+    #         if player.state == PlayerState.DEAD:
+    #             nets.pop(players.index(player))
+    #             players.pop(players.index(player))
+    #
+    #     game_play.draw()
+    #     pygame.display.flip()
+    #     pygame.display.update()
+    #     fpsClock.tick(FPS)
+    #
+    # print('Best Score: ', game_play.score)

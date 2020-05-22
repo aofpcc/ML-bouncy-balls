@@ -162,13 +162,13 @@ class Player(Component):
         self.jump_power = jump_power
         self.radius_without_border = self.radius - border_width
         self.dead_score = 0
-        self.last_jump = time.time()
+        self.last_jump = -7
         self.dead_time = 0
 
     def jump(self, is_right=False):
-        if time.time() - self.last_jump < 0.15:
+        if self.game_play.current_fps - self.last_jump < 7:
             return
-        self.last_jump = time.time()
+        self.last_jump = self.game_play.current_fps
         if self.state == PlayerState.DEAD:
             return
         # print("Player id {0} jump".format(self.id))
@@ -250,6 +250,7 @@ class AI(Player):
 
 class GamePlay(object):
     def __init__(self, fps, gen=None, draw_line=False):
+        self.current_fps = 0
         self.FPS = fps
         self.state = GameState.MENU
         self.gen = gen
@@ -361,6 +362,8 @@ class GamePlay(object):
             self.main_player.jump(key == K_RIGHT)
 
     def draw(self):
+        self.current_fps += 1
+
         self.surface.fill((255, 255, 255))
 
         for x in range(0, int(GRID_WIDTH), 25):
@@ -374,9 +377,7 @@ class GamePlay(object):
             if len(self.players) == len(self.dead_players):
                 self.state = GameState.ALL_DEAD
             if self.state == GameState.PLAYING:
-                done = time.time()
-                elapsed = done - self.start_time
-                self.score = elapsed
+                self.score = self.current_fps / 7
             for player in self.players:
                 if player.state == PlayerState.DEAD and t - player.dead_time > 1:
                     continue
