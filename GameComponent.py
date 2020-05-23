@@ -115,7 +115,8 @@ class Obstacle(Component):
         radius = self.radius
         # int(uniform(radius, GRID_WIDTH - radius))
         x = int(GRID_WIDTH//4)
-        i = randrange(5)
+        # i = randrange(5)
+        i = self.game_play.get_current_obstacle_pattern() - 1
         self.set_position((i * x, self.position[1]))
 
         # print(self.position, self.radius)
@@ -288,6 +289,16 @@ class GamePlay(object):
         self.grid_width = GRID_WIDTH
         self.grid_height = GRID_HEIGHT
 
+        self.obstacle_patterns = [
+            # [1, 2, 3, 4, 5], # pattern a
+            # [5, 4, 3, 2, 1], # pattern b
+            [2, 4, 2, 4, 3], # pattern c
+            # [1, 5, 2, 4, 3], # pattern d
+        ]
+        self.total_patterns = len(self.obstacle_patterns)
+
+        self.current_patterns = []
+
     def get_score(self):
         return self.score
 
@@ -311,6 +322,15 @@ class GamePlay(object):
             obstacle = Obstacle(self.screen, (2 * x_scale, -self.obstacle_radius -i * self.obstacle_gap),
                                 self.obstacle_radius, self)
             self.obstacles.append(obstacle)
+
+    def get_current_obstacle_pattern(self):
+        if len(self.current_patterns) == 0:
+            pos = randrange(self.total_patterns)
+            self.current_patterns += self.obstacle_patterns[pos]
+            # here
+        result = self.current_patterns[0]
+        self.current_patterns = self.current_patterns[1:]
+        return result
 
     def add_player(self, player):
         self.players.append(player)
