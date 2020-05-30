@@ -45,7 +45,7 @@ GRID_HEIGHT = SCREEN_HEIGHT / GRID_SIZE
 GRAVITY = 2.5
 SCALE_GRAVITY = GRID_HEIGHT * GRAVITY * 0.001
 
-print("SCALE_GRAVITY = {0}".format(SCALE_GRAVITY))
+# print("SCALE_GRAVITY = {0}".format(SCALE_GRAVITY))
 
 screen.blit(surface, (0, 0))
 
@@ -250,7 +250,7 @@ class AI(Player):
 
 
 class GamePlay(object):
-    def __init__(self, fps, gen=None, draw_line=False):
+    def __init__(self, fps, gen=None, draw_line=False, the_pattern=None):
         self.current_fps = 0
         self.FPS = fps
         self.state = GameState.MENU
@@ -292,9 +292,17 @@ class GamePlay(object):
         self.obstacle_patterns = [
             # [1, 2, 3, 4, 5], # pattern a
             # [5, 4, 3, 2, 1], # pattern b
-            [2, 4, 2, 4, 3], # pattern c
+            # [2, 4, 2, 4, 3], # pattern c
             # [1, 5, 2, 4, 3], # pattern d
         ]
+
+        if the_pattern is None or the_pattern == 'a':
+            self.obstacle_patterns.append([1, 2, 3, 4, 5])
+        elif the_pattern == 'b':
+            self.obstacle_patterns.append([5, 4, 3, 2, 1])
+        elif the_pattern == 'c':
+            self.obstacle_patterns.append([2, 4, 2, 4, 3])
+
         self.total_patterns = len(self.obstacle_patterns)
 
         self.current_patterns = []
