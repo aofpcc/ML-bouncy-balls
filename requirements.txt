@@ -1,5 +1,5 @@
 neat-python==0.92
-numpy==1.18.4
+numpy==1.22.0
 pickle-mixin==1.0.2
 pygame==1.9.6
 WebOb==1.8.6
